@@ -1,18 +1,23 @@
-from langchain.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+"""
+laod_data.py — Convenience wrapper kept for backward-compatibility.
 
-def load_and_split_documents(file_path: str) -> list:
-    # 1. Load Document
-    loader = PyPDFLoader(file_path)
-    documents = loader.load()
-    
-    # 2. Split into Chunks
-    text_splitter = RecursiveCharacterTextSplitter(
-        separators=["\n\n", "\n", ".", " "],  # Split by paragraphs, then lines, then sentences
-        chunk_size=500,  # Max characters per chunk
-        chunk_overlap=50,  # Overlap to maintain context
-        length_function=len
-    )
-    
-    chunks = text_splitter.split_documents(documents)
-    return chunks
+Prefer using app.tools.file_tool.pdf_parse() + app.rag.chunking.split_documents()
+directly, or the high-level RAGPipeline.ingest() method.
+"""
+
+from app.tools.file_tool import pdf_parse
+from app.rag.chunking import split_documents
+
+
+def load_and_split_documents(file_path: str):
+    """
+    Load a PDF and return chunked LangChain Document objects.
+
+    Args:
+        file_path: Path to the PDF file.
+
+    Returns:
+        List of chunked Document objects ready for embedding.
+    """
+    raw_docs = pdf_parse(file_path)
+    return split_documents(raw_docs)
